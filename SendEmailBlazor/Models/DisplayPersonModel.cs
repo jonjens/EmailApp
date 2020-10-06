@@ -19,5 +19,7 @@ namespace SendEmailBlazor.Models
         [Required]
         [EmailAddress]
         public string EmailAddress { get; set; }
+
+        //
     }
 }
