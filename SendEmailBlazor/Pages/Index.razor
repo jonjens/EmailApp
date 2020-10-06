@@ -1,0 +1,70 @@
+﻿@using System.Net.Mail;
+@using DataAccessLibrary
+@using DataAccessLibrary.Models
+@using SendEmailBlazor.Models
+@using System.IO
+@page "/"
+@inject IJSRuntime JSRuntime
+@inject IPeopleData _db
+
+
+<h1>Send alert</h1>
+
+@if (DateTime.Now.Day == 30)
+{
+    SendMail();
+}
+
+<button class="btn btn-primary" @onclick="SendMail">Send Mail</button>
+<br />
+
+<p>@Message</p>
+
+
+@code{
+    private string Message { get; set; } = "";
+    private List<PersonModel> people;
+
+    protected override async Task OnInitializedAsync()
+    {
+        people = await _db.GetPeople();
+    }
+
+    private void SendMail()
+    {
+        try
+        {
+            using (MailMessage mail = new MailMessage())
+            {
+                mail.From = new MailAddress("jonassenjens@gmail.com");
+
+                foreach (var email in people)
+                {
+                    mail.To.Add(email.EmailAddress);
+                }
+
+                mail.Subject = "Timeregistrering";
+                mail.Body = "<h1>Nå må du registrere og sende inn timene dine</h1>";
+                mail.IsBodyHtml = true;
+
+                #region Add Attachment
+
+                string attachment = $"{Directory.GetCurrentDirectory()}{@"\wwwroot\img\liverpool-premier-league-2019-20_1r738vph5fzoc13bjqdcrwz2ex.jpg"}";
+                mail.Attachments.Add(new Attachment(attachment));
+                #endregion
+
+                using (SmtpClient smtp = new SmtpClient("smtp.gmail.com", 587))
+                {
+                    smtp.Credentials = new System.Net.NetworkCredential("jonassenjens@gmail.com", "7hva7k7hva7k");
+                    smtp.EnableSsl = true;
+                    smtp.Send(mail);
+                    Message = "Mail Sent";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = ex.Message;
+        }
+    }
+}

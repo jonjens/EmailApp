@@ -1,0 +1,20 @@
+﻿@using System.Threading;
+@page "/counter"
+
+<h1>@Count</h1>
+
+<button @onclick="StartCountdown">Start Countdown</button>
+
+@code {
+    private int Count { get; set; } = 10;
+
+    void StartCountdown()
+    {
+        var timer = new Timer(new TimerCallback(_ =>
+        {
+            if (Count <= 0) return;
+            Count--;
+
+        }), null, 1000, 1000);
+    }
+}
